@@ -1,5 +1,29 @@
 <?php include_once("include/file_parse.php");?>
 <?php
+
+/*
+ * Copyright 2015
+   author : Greg Kontos (contact gregkontos - gmail)
+
+    This file is part of NoCms
+ 
+    NoCms is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    NoCms is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ */
+?>
+
+<?php
 class file_data {
 	/*private*/ var $FILENAME;
 	/*private*/ var $parser;
@@ -9,9 +33,9 @@ class file_data {
 	 * fileName = relative path to .csv file
 	 * columnHeaders = array of column headers
 	 */
-	function file_data($fileName, $columnHeaders) {
+	function file_data($fileName, $columnHeaders, $firstRowHeaders) {
 		$this->FILENAME = $fileName;
-		$this->parser = new fileParse($columnHeaders);
+		$this->parser = new fileParse($columnHeaders, $firstRowHeaders);
 		$this->file_contents = $this->parser->parse_items($this->FILENAME);
 	}
 
@@ -45,26 +69,36 @@ class file_data {
 		$row .= '</tr>';
 	}
 
-	function display_table($filterColumn,$match, $sortColumn, $templateFile) {
-		if ($filterColumn && $sortColumn) {
+	/*
+	 *
+	 */
+	function display_all_records($sortColumn, $filterColumn,$match, $templateFile) {
+		if ($filterColumn != '' && $sortColumn != '') {
 			$items = $this->get_sorted_by($sortColumn, $filterColumn,$match);
-		} else if ($filterColumn) {
+		} else if ($filterColumn != '') {
 			$items = $this->get_by($filterColumn,$match);
+		} else if ($sortColumn != '') { 
+			$items =  $this->parser->array_sort($this->file_contents, $sortColumn); 
 		} else {
 			$items = $this->file_contents;
 		}
-		$table = '<table class="noCmsTable">';
+		$table = '';
+		if ($templateFile == '') {
+			$table = '<table class="noCmsTable">';
+		}
 		$count = count($items);
 		for ($i=0; $i<$count; $i++) {
 			$item = $items[$i];
 				# display description, date()
-			if ($templateFile) {
-				$table .= load_into_template($item,$templateFile);
+			if ($templateFile != '') {
+				$table .= $this->load_into_template($item,$templateFile);
 			} else {
 				$table .= $this->get_display_row($item);
 			}
 		}
-		$table .= '</table>';
+		if ($templateFile == '') {
+			$table .= '</table>';
+		}
 		echo $table;
 	}
 	function load_into_template($item, $templateFile) {
@@ -82,7 +116,7 @@ class file_data {
 		$items = $this->get_by($filterColumn, $match);
 		$item = $items[0];
 		if ($templateFile) {
-			$html = load_into_template($item,$templateFile);
+			$html = $this->load_into_template($item,$templateFile);
 		} else {
 
 			$html = '<div class="noCmsRecord">';

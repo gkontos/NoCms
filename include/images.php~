@@ -12,7 +12,7 @@ class image_display {
 		$images = (!empty($dir)) ? $dir : "images";
 		$this->directory = $images;		
 		if (!is_dir($images)) {
-			displaySingle = true;
+			$this->displaySingle = true;
 		} else {
 			$this->columns = $columns;
 			$this->maxImageWidth = $maxImageWidth;
@@ -33,7 +33,7 @@ class image_display {
 	}
 
 	function display($title = '') {
-		if ($this->displaySingle()) {
+		if ($this->displaySingle) {
 			$this->display_single();
 		} else {
 			$this->display_images($title);
@@ -45,18 +45,22 @@ class image_display {
 	}
 
 	function display_images($title = '') {
-		$dir = $this->directory;
+		$directory = $this->directory;
 		$colCtr = 0;
 		echo '<h3>'.$title.'</h3><table class="noCmsImageTable"><tr>';
-		foreach($files as $file) {
+		foreach($this->files as $file) {
 			if($colCtr % $this->columns == 0) {
 				echo '</tr><tr>';
 			}
 			echo '<td>';
+			$params = array_merge($_GET, array("dir" => $directory . '/'. $file));
+			$query_string = http_build_query($params);
 			if (is_dir($directory . '/'. $file)) {
-				echo '<a class="photo_folder" href="?dir='. $directory . '/'. $file . '"><img src="images/folder.png"/><br/>'. $file . '</a>';
+			
+				echo '<a class="photo_folder" href="?'.$query_string.'"><img src="images/folder.png"/><br/>'. $file . '</a>';
 			} else {
-				echo '<a href="?dir=' . $directory .'/'. $file . '"><img width="'.$this->maxImageWidth.'px" src="' . $directory .'/'. $file . '" /></a>';
+
+				echo '<a href="?'.$query_string.'"><img width="'.$this->maxImageWidth.'px" src="' . $directory .'/'. $file . '" /></a>';
 			}
 			echo '</td>';
 			$colCtr++;

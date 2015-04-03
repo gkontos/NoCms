@@ -1,13 +1,37 @@
 <?php
+
+/*
+ * Copyright 2015
+   author : Greg Kontos (contact gregkontos - gmail)
+
+    This file is part of NoCms
+ 
+    NoCms is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    NoCms is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ */
+?>
+
+<?php
 //Methods for reading a file and returning an array of objects
 class fileParse {
 	protected $fields = array();
-	public function __construct( /*...*/) {
-		$args = func_get_args();
-		for( $i=0, $n=count($args); $i<$n; $i++ ) {
-			$this->fields[$i] = $args[$i];
-		}
-    }
+	protected $firstRowHeaders = false;
+
+function fileParse($columnHeaders,$firstRowHeaders = false) {
+	$this->fields = $columnHeaders;
+	$this->firstRowHeaders = $firstRowHeaders;
+}
     
 # read a file and return an array of items
 function parse_items($file_name) {
@@ -19,15 +43,19 @@ function parse_items($file_name) {
 	$items = array();
 	$file_handle = fopen($file_name, "r");
 	if ($file_handle) {
-		
+		$count = 0;
 		while (!feof($file_handle) ) {
 			$item = fgetcsv($file_handle, 1024);
 			if ($item[0] != '') {
-				$temp_item = array();
-				for ($i=0; $i<count($item); $i++) {
-					$temp_item[$this->fields[$i]] = trim($item[$i]);
+				if ($this->firstRowHeaders && $count == 0) {
+					$count++;
+				} else {
+					$temp_item = array();
+					for ($i=0; $i<count($item); $i++) {
+						$temp_item[$this->fields[$i]] = trim($item[$i]);
+					}
+					$items[] = $temp_item;
 				}
-				$items[] = $temp_item;
 			}
 		}
 		fclose($file_handle);
@@ -43,7 +71,6 @@ function get_by_field_value($items, $field_name, $match) {
 	$array_index = $this->find_key($field_name);
 	if (!is_null($array_index)) {  
 		for ($i = 0; $i < $count; $i++) {
-			
 			$item = $items[$i];
 			
 			if ($item[$field_name] == $match) {
@@ -89,14 +116,14 @@ function array_sort($array, $on, $order='SORT_ASC') {
     return $new_array;
 }
 	
-	function find_key($field_name) {
-		$key = null;
-		foreach ( array_keys ( $this->fields ) as $k => $v ) {
-			if ($v == $field_name) {
-				$key = $k;
-			}
+function find_key($field_name) {
+	$key = null;
+	foreach ( array_keys ( $this->fields ) as $k => $v ) {
+		if ($v == $field_name) {
+			$key = $k;
 		}
-		return $key;	
 	}
+	return $key;	
+}
 }
 ?>
