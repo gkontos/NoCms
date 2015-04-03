@@ -20,11 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *** NoCms  ****
 
 NoCms is a set of utility classes written in php which make it easy to add dynamic 
-content to small community or personal websites.  Content is added to the site using 
-a spreadsheet saved in .csv format.  All you or your client needs to do is update the 
-spreadsheet and upload it to the site.  This functionality works great for situations 
-where a full blown CMS is overkill and adds a lot of extra features.  Those extra features 
-add training time or need to be locked down.  If you find yourself on a server where jdbc 
+content to small community or personal websites without the use of a database.  
+Content is added to the site using a spreadsheet saved in .csv format.  All you or your 
+client needs to do is update the spreadsheet and upload it to the site.  This functionality 
+works great for situations where a full blown CMS is overkill and adds a lot of extra features.  
+Those extra features add training time or need to be locked down.  If you find yourself on a server where jdbc 
 has been blocked or where you cannot install a database, this tool will help.
 
 Using NoCms content can be displayed as lists, sorted lists, or individual page views.  
